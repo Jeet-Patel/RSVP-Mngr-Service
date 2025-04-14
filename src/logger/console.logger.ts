@@ -3,12 +3,18 @@ import { Logger } from './logger.interface';
 const isDebug = process.env.NODE_ENV !== 'production';
 
 export class ConsoleLogger implements Logger {
-  info(message: string): void {
+  info(message: string, meta?: any): void {
     console.log(`INFO: ${message}`);
+    if (meta && isDebug) {
+      console.log('Debug Info:', meta);
+    }
   }
 
-  warn(message: string): void {
+  warn(message: string, meta?: any): void {
     console.warn(`WARNING: ${message}`);
+    if (meta && isDebug) {
+      console.warn('Debug Info:', meta);
+    }
   }
 
   error(message: string, meta?: any): void {
