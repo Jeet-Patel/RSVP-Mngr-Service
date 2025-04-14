@@ -1,9 +1,17 @@
 import { FirebaseRsvpStore } from '../src/store/firebase-rsvp.store';
 import { Player } from '../src/interfaces/types';
 import { db } from '../src/firebase/firebase-config';
+import { Logger } from '../src/logger/logger.interface';
+
+class MockLogger implements Logger {
+  info(_: string): void {}
+  warn(_: string): void {}
+  error(_: string, __?: any): void {}
+  debug?(_: string, __?: any): void {}
+}
 
 describe('FirebaseRsvpStore Integration Test', () => {
-  const store = new FirebaseRsvpStore();
+  const store = new FirebaseRsvpStore(new MockLogger());
   const testCollection = db.collection('rsvps');
 
   const players: Player[] = [

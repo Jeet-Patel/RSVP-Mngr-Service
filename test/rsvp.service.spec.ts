@@ -1,6 +1,7 @@
 import { RsvpService } from '../src/service/rsvp.service';
 import { RsvpStore } from '../src/store/rsvp.store';
 import { Player, RsvpStatus } from '../src/interfaces/types';
+import { Logger } from '../src/logger/logger.interface';
 
 class InMemoryRsvpStore implements RsvpStore {
   private rsvpMap = new Map<string, RsvpStatus>();
@@ -26,14 +27,23 @@ class InMemoryRsvpStore implements RsvpStore {
   }
 }
 
+class MockLogger implements Logger {
+  info(_: string): void {}
+  warn(_: string): void {}
+  error(_: string, __?: any): void {}
+  debug?(_: string, __?: any): void {}
+}
+
 describe('RsvpService', () => {
   let store: InMemoryRsvpStore;
   let service: RsvpService;
+  let logger: Logger;
   let players: Player[];
 
   beforeEach(() => {
     store = new InMemoryRsvpStore();
-    service = new RsvpService(store);
+    logger = new MockLogger();
+    service = new RsvpService(store, logger);
 
     players = [
       { id: '1', name: 'Alice' },
@@ -56,7 +66,7 @@ describe('RsvpService', () => {
     await service.addOrUpdate(players[1], 'No');
     await service.addOrUpdate(players[2], 'Yes');
 
-    const confirmed = await service.getConfirmed(players);
+    const confirmed = await service.getConfirmed();
     expect(confirmed).toEqual([players[0], players[2]]);
   });
 
