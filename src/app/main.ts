@@ -4,8 +4,8 @@ import { RsvpService } from '../service/rsvp.service';
 import { Player } from '../interfaces/types';
 
 const logger = new ConsoleLogger();
-const store = new FirebaseRsvpStore(); 
-const service = new RsvpService(store);
+const store = new FirebaseRsvpStore(logger);
+const service = new RsvpService(store, logger);
 
 const players: Player[] = [
   { id: '1', name: 'Alice' },
@@ -14,15 +14,19 @@ const players: Player[] = [
 ];
 
 async function run() {
-  await service.addOrUpdate(players[0], 'Yes');
-  await service.addOrUpdate(players[1], 'No');
-  await service.addOrUpdate(players[2], 'Maybe');
+  try {
+    await service.addOrUpdate(players[0], 'Yes');
+    await service.addOrUpdate(players[1], 'No');
+    await service.addOrUpdate(players[2], 'Maybe');
 
-  const confirmed = await service.getConfirmed(players);
-  console.log('✅ Confirmed:', confirmed);
+    const confirmed = await service.getConfirmed();
+    logger.info(`Confirmed: ${JSON.stringify(confirmed)}`);
 
-  const stats = await service.getStats();
-  console.log('📊 Stats:', stats);
+    const stats = await service.getStats();
+    logger.info(`Stats: ${JSON.stringify(stats)}`);
+  } catch (err) {
+    logger.error('Fatal error during execution:', err);
+  }
 }
 
 run();

@@ -1,18 +1,35 @@
 import { RsvpStore } from '../store/rsvp.store';
 import { Player, RsvpStatus } from '../interfaces/types';
+import { Logger } from '../logger/logger.interface';
 
 export class RsvpService {
-  constructor(private store: RsvpStore) {}
+  constructor(private store: RsvpStore, private logger: Logger) {}
 
   async addOrUpdate(player: Player, status: RsvpStatus) {
-    return this.store.addOrUpdateRsvp(player, status);
+    try {
+      this.logger.debug?.(`Updating RSVP for ${player.name}`, { player, status });
+      await this.store.addOrUpdateRsvp(player, status);
+    } catch (err) {
+      this.logger.error(`Service failed to update RSVP for ${player.name}`, err);
+      throw new Error('Could not update RSVP');
+    }
   }
 
-  async getConfirmed(players: Player[]): Promise<Player[]> {
-    return this.store.getConfirmedAttendees();
+  async getConfirmed(): Promise<Player[]> {
+    try {
+      return await this.store.getConfirmedAttendees();
+    } catch (err) {
+      this.logger.error('Service failed to fetch confirmed attendees', err);
+      throw new Error('Could not fetch confirmed attendees');
+    }
   }
 
   async getStats(): Promise<{ total: number; confirmed: number; declined: number }> {
-    return this.store.getResponseCounts();
+    try {
+      return await this.store.getResponseCounts();
+    } catch (err) {
+      this.logger.error('Service failed to compute RSVP stats', err);
+      throw new Error('Could not fetch RSVP stats');
+    }
   }
 }
